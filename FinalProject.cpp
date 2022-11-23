@@ -13,6 +13,7 @@ int main() {
     std::map<std::string, std::string> m;
     if (nameFile.is_open()) {
         string name, studentID;
+        // map student IDs to the names of students
         while (getline(nameFile, studentID, ',')) {
             getline(nameFile, name);
             m[studentID] = name;
@@ -35,9 +36,9 @@ int main() {
             getline(courseFile, test2, ',');
             getline(courseFile, test3, ',');
             getline(courseFile, finalExam);
-            //convert inputs from in files to floats
+            // convert inputs from in files to floats
             float finalGrade = ((stof(test1) + stof(test2) + stof(test3)) / 3 * 0.6) + (stof(finalExam) * 0.4);
-            //output to final grade
+            // output to final grade
             output << studentID << setw(20)<< m[studentID] << setw(20) << courseCode << setw(20) << finalGrade << std::endl;
         }
         nameFile.close();
