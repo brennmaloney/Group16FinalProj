@@ -1,10 +1,37 @@
-
 #include <string>
 #include <fstream>
 #include <stdio.h>
 #include <iostream>
 #include <map>
 #include <iomanip>
+
+// check for valid numbers given std::string
+int valid(std::string test1, std::string test2, std::string test3,
+                    std::string finalExam, std::string id) {
+    try {
+        stof(test1);
+        stof(test2);
+        stof(test3);
+        stof(finalExam);
+        stof(id);
+    } catch(...) {
+        return 0;
+    }
+    return 1;
+}
+
+// check for valid numbers given std::string
+int valid(std::string id, std::string name) {
+    try {
+        stoi(id);
+    } catch(...) {
+        return 0;
+    }
+    if(name.length() > 20) {
+        return 0;
+    }
+    return 1;
+}
 
 int main() {
     // make a map of course codes to names
@@ -15,7 +42,9 @@ int main() {
         // map student IDs to the names of students
         while (std::getline(nameFile, studentID, ',')) {
             std::getline(nameFile, name);
-            m[studentID] = name;
+            if(valid(studentID, name)) {
+                m[studentID] = name;
+            }
         }
     } else {
         std::cout << "Error 'NameFile.txt' is not open" << std::endl;
@@ -36,11 +65,14 @@ int main() {
             std::getline(courseFile, test2, ',');
             std::getline(courseFile, test3, ',');
             std::getline(courseFile, finalExam);
-            // convert inputs from in files to floats
-            float finalGrade = ((stof(test1) + stof(test2) + stof(test3)) / 3 * 0.6) + (stof(finalExam) * 0.4);
-            // output to final grade
-            output << studentID << std::setw(20)<< m[studentID] << std::setw(20) <<
-            courseCode << std::setw(20) << finalGrade << std::endl;
+            // test inputs from CourseFile.txt
+            if(valid(test1, test2, test3, finalExam, studentID) && courseCode.length() <= 6) {
+                // convert inputs from in files to floats
+                float finalGrade = ((stof(test1) + stof(test2) + stof(test3)) / 3 * 0.6) + (stof(finalExam) * 0.4);
+                // output to final grade
+                output << studentID << std::setw(20)<< m[studentID] << std::setw(20) <<
+                courseCode << std::setw(20) << finalGrade << std::endl;
+            }
         }
         nameFile.close();
         courseFile.close();
