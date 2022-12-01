@@ -6,24 +6,54 @@
 #include <iomanip>
 #include <algorithm>
 
+//--------------- Student Structure Functions ---------------
 struct Student {
-    std::string studentID;
-    std::string name;
-    std::string courseCode;
-    float finalGrade;
+    private:
+        std::string studentID;
+        std::string name;
+        std::string courseCode;
+        float finalGrade;
+    public:
+        // setters for Student Class
+        void setStudentID(std::string id) {
+            studentID = id;
+        }
+        void setStudentName(std::string n) {
+            name = n;
+        }
+        void setStudentCourseCode(std::string code) {
+            courseCode = code;
+        }
+        void setStudentGrade(float grade) {
+            finalGrade = grade;
+        }
+        // getters for Student Class
+        std::string getStudentID() {
+            return studentID;
+        }
+        std::string getStudentName() {
+            return name;
+        }
+        std::string getStudentCourseCode() {
+            return courseCode;
+        }
+        float getStudentGrade() {
+            return finalGrade;
+        }
 };
 
 // creates a Student to be added to a arrayy of students
 Student createStudent(std::string name, std::string studentID, 
                         std::string courseCode, float finalGrade) {
     Student st;
-    st.studentID = studentID;
-    st.name = name;
-    st.courseCode = courseCode;
-    st.finalGrade = finalGrade;
+    st.setStudentCourseCode(courseCode);
+    st.setStudentName(name);
+    st.setStudentID(studentID);
+    st.setStudentGrade(finalGrade);
     return st;
 }
 
+//----------------------------------------------------------------------------
 // check for valid numbers given std::string
 int valid(std::string test1, std::string test2, std::string test3,
                     std::string finalExam, std::string id) {
@@ -87,7 +117,8 @@ int getStudentsData(Student *st[], int numStudents) {
             if(valid(test1, test2, test3, finalExam, studentID) && courseCode.length() <= 6) {
                 if(m.count(studentID)) {
                     // convert inputs from in files to floats
-                    float finalGrade = ((stof(test1) + stof(test2) + stof(test3)) / 3 * 0.6) + (stof(finalExam) * 0.4);
+                    float finalGrade = ((stof(test1) + stof(test2) + stof(test3)) / 3 * 0.6)
+                                         + (stof(finalExam) * 0.4);
                     (*st)[index] = createStudent(m[studentID], studentID, courseCode, finalGrade);
                     // output to final grade
                     index++;
@@ -109,16 +140,15 @@ void outputStudents(Student st[], int numStudents) {
             "Course Code" << std::setw(20) << "Final Grade" << std::endl;
     output << "-------------------------------------------------------------------------" << std::endl;
     for(int i = 0; i < numStudents; i++) {
-        output << st[i].studentID << std::setw(20)<< st[i].name << std::setw(20) <<
-                st[i].courseCode << std::setw(20) << st[i].finalGrade << std::endl;
+        output << st[i].getStudentID() << std::setw(20)<< st[i].getStudentName() << std::setw(20) <<
+                st[i].getStudentCourseCode() << std::setw(20) << st[i].getStudentGrade() << std::endl;
     }
     return;
 }
 
-
 // helper sorting function to sort array of students by their ID
 bool sortStudentId(Student &x, Student &y) {
-    return x.studentID > y.studentID;
+    return x.getStudentID() > y.getStudentID();
 }
 
 // gets the maximum number of students from 'CourseFile.txt'
@@ -140,12 +170,13 @@ int numStudents() {
 int numValidStudents(Student *st, int numStudents) {
     int count = 0;
     for(int i = 0; i < numStudents; i++) {
-        if(st[i].finalGrade != 0) {
+        if(st[i].getStudentGrade() != 0) {
             count++;
         }
     }
     return count;
 }
+//----------------------------------------------------------------------------
 
 int main() {    
     Student *st;
