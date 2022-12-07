@@ -78,10 +78,11 @@ int valid(std::string id, std::string name) {
             return 0;
         }
     } else {
-        std::cout <<"Invalid Student ID length\n";
+        std::cout <<"Invalid Student ID length, ";
         return 0;
     }
     if(name.length() > 20 || name.length() <= 0) {
+        std::cout <<"Invalid name length, ";
         return 0;
     }
     return 1;
@@ -102,13 +103,16 @@ int getStudentsData(Student *st[], int numStudents) {
             std::string token;
             int tokenCount = 0;
             while (std::getline(ss, token, ',') && tokenCount < 2) {
+                token.erase(token.begin(), std::find_if(token.begin(), token.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
                 if (tokenCount) name = token;
                 else studentID = token;
                 tokenCount++;
             }
             if(tokenCount == 2 && valid(studentID, name)) {
                 m[studentID] = name;
-            } else {
+            // Only print error message if the line isn't blank
+            } else if (tokenCount > 0) {
+                if (tokenCount == 1) std::cout <<"Missing comma, ";
                 std::cout << "Error on line: " <<lineCount<<" of 'NameFile.txt'\n";
             }
             lineCount++;
