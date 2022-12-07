@@ -162,6 +162,8 @@ int getStudentsData(Student *st[], int numStudents) {
                     (*st)[index] = createStudent(m[studentID], studentID, courseCode, finalGrade);
                     // output to final grade
                     index++;
+                } else {
+                    std::cout << "Can't find student with ID: " << studentID << " on line " <<lineCount <<'\n';
                 }
             } else {
                 std::cout << "Error on line " <<lineCount<<" of 'CourseFile.txt'\n";
