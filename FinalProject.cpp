@@ -71,12 +71,18 @@ int valid(std::string test1, std::string test2, std::string test3,
 
 // check for valid numbers given std::string
 int valid(std::string id, std::string name) {
-    try {
-        stoi(id);
-    } catch(...) {
+    if(id.length() == 9) {
+        try {
+            stoi(id);
+        } catch(...) {
+            return 0;
+        }
+    } else {
+        std::cout <<"Invalid Student ID length, ";
         return 0;
     }
-    if(name.length() > 20) {
+    if(name.length() > 20 || name.length() <= 0) {
+        std::cout <<"Invalid name length, ";
         return 0;
     }
     return 1;
@@ -85,17 +91,31 @@ int valid(std::string id, std::string name) {
 // gets all of the valid student data and creates an array of Students
 int getStudentsData(Student *st[], int numStudents) {
     *st = new Student[numStudents];
+    int lineCount = 1;
     // make a map of course codes to names
     std::fstream nameFile("NameFile.txt", std::ios::in);
     std::map<std::string, std::string> m;
     if (nameFile.is_open()) {
-        std::string name, studentID;
+        std::string name, studentID, line;
         // map student IDs to the names of students
-        while (std::getline(nameFile, studentID, ',')) {
-            std::getline(nameFile, name);
-            if(valid(studentID, name)) {
-                m[studentID] = name;
+        while (std::getline(nameFile, line)) {
+            std::istringstream ss(line);
+            std::string token;
+            int tokenCount = 0;
+            while (std::getline(ss, token, ',') && tokenCount < 2) {
+                token.erase(token.begin(), std::find_if(token.begin(), token.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
+                if (tokenCount) name = token;
+                else studentID = token;
+                tokenCount++;
             }
+            if(tokenCount == 2 && valid(studentID, name)) {
+                m[studentID] = name;
+            // Only print error message if the line isn't blank
+            } else if (tokenCount > 0) {
+                if (tokenCount == 1) std::cout <<"Missing comma, ";
+                std::cout << "Error on line: " <<lineCount<<" of 'NameFile.txt'\n";
+            }
+            lineCount++;
         }
     } else {
         std::cout << "Error 'NameFile.txt' is not open" << std::endl;
