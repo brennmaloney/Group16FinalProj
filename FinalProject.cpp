@@ -57,13 +57,23 @@ Student createStudent(std::string name, std::string studentID,
 // check for valid numbers given std::string
 int valid(std::string test1, std::string test2, std::string test3,
                     std::string finalExam, std::string id) {
+    if (id.length() != 9) {
+        std::cout <<"Invalid Student ID length, ";
+        return 0;
+    }
     try {
-        stof(test1);
-        stof(test2);
-        stof(test3);
-        stof(finalExam);
         stof(id);
     } catch(...) {
+        std::cout << "Invalid value for Student ID, ";
+        return 0;
+    }
+    try {
+        if (stof(test1) < 0 || stof(test2) < 0 || stof(test3) < 0 || stof(finalExam) < 0) {
+            std::cout <<"Negative grade detected, ";
+            return 0;
+        }
+    } catch(...) {
+        std::cout << "Invalid value for grade, ";
         return 0;
     }
     return 1;
@@ -112,8 +122,7 @@ int getStudentsData(Student *st[], int numStudents) {
                 m[studentID] = name;
             // Only print error message if the line isn't blank
             } else if (tokenCount > 0) {
-                if (tokenCount == 1) std::cout <<"Missing comma, ";
-                std::cout << "Error on line: " <<lineCount<<" of 'NameFile.txt'\n";
+                std::cout << "Error on line " <<lineCount<<" of 'NameFile.txt'\n";
             }
             lineCount++;
         }
@@ -121,20 +130,31 @@ int getStudentsData(Student *st[], int numStudents) {
         std::cout << "Error 'NameFile.txt' is not open" << std::endl;
         return 0;
     }
+    lineCount = 1;
+
     // run through CourseFile.txt and output to FormatStudents.txt
     std::fstream courseFile("CourseFile.txt", std::ios::in);
     if (courseFile.is_open()) {
         // initialize headers for FormatStudents.txt
-        std::string studentID, courseCode, test1, test2, test3, finalExam;
+        std::string studentID, courseCode, test1, test2, test3, finalExam, line;
         int index = 0;
-        while (std::getline(courseFile, studentID, ',')) {
-            std::getline(courseFile, courseCode, ',');
-            std::getline(courseFile, test1, ',');
-            std::getline(courseFile, test2, ',');
-            std::getline(courseFile, test3, ',');
-            std::getline(courseFile, finalExam);
+        while (std::getline(courseFile, line)) {
+            std::istringstream ss(line);
+            std::string token;
+            int tokenCount = 0;
+
+            while (std::getline(ss, token, ',') && tokenCount < 6) {
+                token.erase(token.begin(), std::find_if(token.begin(), token.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
+                if (tokenCount == 0) studentID = token;
+                if (tokenCount == 1) courseCode = token;
+                if (tokenCount == 2) test1 = token;
+                if (tokenCount == 3) test2 = token;
+                if (tokenCount == 4) test3 = token;
+                if (tokenCount == 5) finalExam = token;
+                tokenCount++;
+            }
             // test inputs from CourseFile.txt
-            if(valid(test1, test2, test3, finalExam, studentID) && courseCode.length() <= 6) {
+            if(tokenCount == 6 && courseCode.length() <= 6 && valid(test1, test2, test3, finalExam, studentID)) {
                 if(m.count(studentID)) {
                     // convert inputs from in files to floats
                     float finalGrade = ((stof(test1) + stof(test2) + stof(test3)) / 3 * 0.6)
@@ -142,8 +162,13 @@ int getStudentsData(Student *st[], int numStudents) {
                     (*st)[index] = createStudent(m[studentID], studentID, courseCode, finalGrade);
                     // output to final grade
                     index++;
+                } else {
+                    std::cout << "Can't find student with ID: " << studentID << " on line " <<lineCount <<'\n';
                 }
+            } else {
+                std::cout << "Error on line " <<lineCount<<" of 'CourseFile.txt'\n";
             }
+            lineCount++;
         }
     } else {
         std::cout << "Error 'CourseFile.txt' is not open" << std::endl;
